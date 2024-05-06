@@ -22,14 +22,24 @@ func NewAPIServer(addr string, db *sql.DB) *APIServer {
 
 func (s *APIServer) Run() error {
 	router := http.NewServeMux()
+	router.HandleFunc("POST /users/{userID}", func(w http.ResponseWriter, r *http.Request) {
+		userID := r.PathValue("userID")
+		w.Write([]byte("User ID: " + userID))
+	})
+
+	// This is a subrouter
+	v1 := http.NewServeMux()
+	v1.Handle("/api/v1/", http.StripPrefix("/api/v1", router))
 
 	userHandler := user.NewHandler()
-	userHandler.RegisterRoutes(router)
+	userHandler.RegisterRoutes(v1)
 
-	subrouter := http.NewServeMux()
-	subrouter.Handle("/api/v1", http.StripPrefix("/api/v1", router))
+	server := http.Server{
+		Addr:    s.addr,
+		Handler: v1,
+	}
 
-	log.Println("Listening on ", s.addr)
+	log.Println("server has started")
 
-	return http.ListenAndServe(s.addr, subrouter)
+	return server.ListenAndServe()
 }

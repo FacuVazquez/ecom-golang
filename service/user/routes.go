@@ -9,8 +9,8 @@ func NewHandler() *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router *http.ServeMux) {
-	router.HandleFunc("/login", h.handleLogin)
-	router.HandleFunc("/register", h.handleResgister)
+	router.HandleFunc("POST /login", h.handleLogin)
+	router.HandleFunc("POST /register", h.handleResgister)
 }
 
 func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
